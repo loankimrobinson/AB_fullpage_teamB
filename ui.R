@@ -50,15 +50,16 @@ ui <- fullPage(
   fullSection(
     menu = 'location',
     center = TRUE,
-    fullSlideImage(
-      img = 'map.png'
-    )
+    uiOutput("plot_region")
   ),
   fullSection(
     menu = 'analytic',
     center = TRUE,
+    id = "analytic",
     fullSlideImage(
-      img = 'Cheers.jpeg'
+      img = 'Cheers.jpeg',
+      #uiOutput("weather"),
+      uiOutput("weather_schedule")
     )
   ),
   fullSection(
@@ -168,7 +169,7 @@ ui <- fullPage(
         br(),br(),
         h3(style = 'color:black;', ''),
         hr()
-      ),
+       ),
       )
     )
   )
