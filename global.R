@@ -40,6 +40,148 @@ ab_data_team$age_group[ab_data_team$age <= 50 & ab_data_team$age >= 41] <- "41 -
 ab_data_team$age_group[ab_data_team$age <= 60 & ab_data_team$age >= 51] <- "51 - 60"
 ab_data_team$age_group[ab_data_team$age >= 61] <- "Above 60"
 
+gender_dt <- data.frame(table(ab_data_team$gender))
+gender_dt$Var1 <- c("Female","Male")
+
+p <- plotly::plot_ly(gender_dt, 
+                     labels = ~Var1, 
+                     values = ~Freq, 
+                     type = 'pie',
+                     textposition = ifelse(100*(gender_dt$Freq/sum(gender_dt$Freq))<8,"outside","inside"),
+              
+                     #textposition = 'inside',
+                     sort = FALSE,
+                     textinfo = 'label+value+percent',
+                     #texttemplate = '<b>%{label}</br></br>%{percent}</b>', 
+                     insidetextfont = list(color = '#FFFFFF'),
+                     textfont = list(size = 20, color = "#4a1e15"),
+                     hoverinfo = 'text',
+                     text = ~Freq,
+                     marker = list(colors = c("#636466","#e3af32"),
+                                   line = list(color = '#FFFFFF', width = 1)),
+                     #The 'pull' attribute can also be used to create space between the sectors
+                     showlegend = FALSE)
+
+
+
+bar_box_horizontal <- function(trimmer = 22, autorange = FALSE, plot_data,x_var,y_var,color_var,text,hovertext,title = "",x_var_label="",y_var_label="", colorRampPalette = TRUE,color_fill = c("#C2CFE7","#6787c4"), legend = "bottom", type_var="bar",alpha = 1,stack = TRUE,tickangle=0,mode_var="lines+markers", source = "summary_out") {
+  legend_in <- legend
+  if(legend_in  == "top"){
+    legend <- list(orientation = "h",xanchor = "center",y = 1.0,x = 0.5)
+    showlegend <- TRUE
+  }else if(legend_in  == "bottom"){
+    legend <- list(itemwidth = 29,orientation = "h",xanchor = "center",size = 12,y =-0.1,x = 0.5,
+                   title=list(size = 12,color = "#485E89"),
+                   font = list(size = 12,color = "#485E89"))
+    showlegend <- TRUE
+  }else if(legend_in  == "right"){
+    legend <- list(orientation = "v",yanchor = "center",y = 1,x = 0.8)
+    showlegend <- TRUE
+  }else if(legend_in  == "left"){
+    legend <- list(orientation = "v",yanchor = "center",y = 0.5,x = -0.15)
+    showlegend <- TRUE
+  }else{
+    showlegend <- FALSE
+  }
+  if(isTRUE(colorRampPalette)){
+    length_color <- length(unique(plot_data[[color_var]]))
+    color_fill_out <-  colorRampPalette(color_fill)(length_color)
+  }else{
+    color_fill_out <- color_fill
+  }
+  
+  if(isTRUE(stack)){
+    barmode = 'stack'
+  }else{
+    barmode = 'group'
+  }
+  
+  if(isFALSE(autorange)){
+    autorange = "reversed"
+  }else{
+    autorange  = TRUE
+  }
+  
+  if("total" %in% colnames(plot_data)){
+    range <- c(ifelse(min(plot_data[["total"]]) >= 0, 0, min(plot_data[["total"]])*2), max(plot_data[["total"]])+(max(plot_data[["total"]])/7))
+  }else{
+    range <- c(ifelse(min(plot_data[,y_var]) >= 0, min(plot_data[,y_var]) - min(plot_data[,y_var])/5 , min(plot_data[,y_var])*2), max(plot_data[,y_var])+(max(plot_data[,y_var])/7))
+  }
+  label <- unique(as.character(plot_data[[x_var]]))
+  tick.text <- trimmer(label, 22)
+  
+  
+  p <- plotly::plot_ly(plot_data, 
+                       x = ~ get(y_var), 
+                       color = ~ get(color_var),
+                       y = ~ get(x_var),
+                       customdata = ~ get(color_var),
+                       text = ~ formatC(get(text), format="f", big.mark=",", digits=0),
+                       hoverinfo = "text",
+                       hovertext = ~hovertext,
+                       textposition = c('outside'),
+                       textfont = list(size = 11, color = "black"),
+                       type = type_var,
+                       alpha = 1,
+                       colors = color_fill_out,
+                       orientation = 'h',
+                       source = source)
+  plot <- p %>% layout(
+    barmode = "stack",
+    bargap = 0.2, bargroupgap = 0.1,
+    font = list(color = 'gray',size = 10),
+    hoverlabel = list(font=list(size=11)),
+    showlegend =  showlegend,
+    title = list(text = title,font = list(size = 15,color = "#485E89")),
+    margin =list( l=30,r=10,b=10,t=40),
+    xaxis = list(
+      # autorange = "reversed",
+      range = range,
+      fixedrange = TRUE,
+      tickfont = list(
+        
+        size = 11,
+        color = "#485E89"
+      ),
+      titlefont = list(
+        
+        size =  13,
+        color = "#485E89"
+      ),
+      title = x_var_label,
+      zeroline = FALSE,
+      tickmode = "array",
+      color = "#485E89"
+      # tickvals=~ c(0, get(y_var)),
+      # ticktext=~ c(0, get(y_var))
+    ),
+    yaxis = list(
+      autorange =  autorange,
+      tickfont = list(
+        
+        size = 11,
+        color = "#485E89"),
+      titlefont = list(
+        
+        size =  13,
+        color = "#485E89"),
+      title = y_var_label,
+      zeroline = FALSE,
+      # tickmode = "array",
+      # tickvals = label,
+      # ticktext = tick.text,
+      # tickvals=~ c(0,get(x_var)),
+      # ticktext=~ c(0,get(x_var)),
+      color = "#485E89"),
+    legend = legend)
+  return(plot)
+}
+
+
+
+
+
+
 
 
 
