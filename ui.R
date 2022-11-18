@@ -17,10 +17,9 @@ ui <- fullPage(
   # menu tabs----
   menu = c(
     'Home' = 'home',
-    'Location' = 'location',
-    'Analytics' = 'analytic',
+    'RFM Static Visualization' = 'visualization',
+    'Analytics' = 'analytics',
     'Recommendations' = 'recommendation',
-    'Road to the Super Bowl' = 'road',
     'About Us' = 'about'
   ),
   # home section----
@@ -48,32 +47,36 @@ ui <- fullPage(
     )
   ),
   fullSection(
-    menu = 'location',
-    center = TRUE,
-    uiOutput("plot_region")
+    menu = 'visualization',
+    center = TRUE
+
   ),
   fullSection(
-    menu = 'analytic',
+    menu = 'analytics',
     center = TRUE,
-    id = "analytic",
-    fullSlideImage(
-      img = 'Cheers.jpeg',
-      #uiOutput("weather"),
-      uiOutput("weather_schedule")
-    )
+    uiOutput("ana_ui")
+
   ),
+  # fullSection(
+  #   menu = 'location',
+  #   center = TRUE,
+  #   uiOutput("plot_region")
+  # ),
+  # fullSection(
+  #   menu = 'analytic',
+  #   center = TRUE,
+  #   id = "analytic",
+  #   fullSlideImage(
+  #     img = 'Cheers.jpeg',
+  #     #uiOutput("weather"),
+  #     uiOutput("weather_schedule")
+  #   )
+  # ),
   fullSection(
     menu = 'recommendation',
     center = TRUE,
     fullSlideImage(
       img = 'AB-InBev-logo.jpeg'
-    )
-  ),
-  fullSection(
-    menu = 'road',
-    center = TRUE,
-    fullSlideImage(
-      img = 'q3earnings_news_banner.png'
     )
   ),
   fullSection(

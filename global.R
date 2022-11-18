@@ -29,6 +29,27 @@ library(jsonlite)
 library(httr)
 
 
+
+ab_data_team <- read.csv("data/AB_Data_20221117.csv", stringsAsFactors = F)
+ab_data_team$month_char <- month(ymd(as.Date(ab_data_team$order_date, format = "%m/%d/%Y")), label=TRUE, abbr = F)
+ab_data_team <- ab_data_team[ab_data_team$Weather_Type == "Outliers",]
+ab_data_team$age <- trunc(as.numeric(difftime(Sys.Date() ,as.Date(ab_data_team$dob, format = "%m/%d/%Y"),units = "days")) / 365.25)
+ab_data_team$age_group[ab_data_team$age <= 30 & ab_data_team$age >= 21] <- "22 - 30"
+ab_data_team$age_group[ab_data_team$age <= 40 & ab_data_team$age >= 31] <- "31 - 40"
+ab_data_team$age_group[ab_data_team$age <= 50 & ab_data_team$age >= 41] <- "41 - 50"
+ab_data_team$age_group[ab_data_team$age <= 60 & ab_data_team$age >= 51] <- "51 - 60"
+ab_data_team$age_group[ab_data_team$age >= 61] <- "Above 60"
+
+
+
+
+# str(ab_data_team)
+# table(ab_data_team$gender)
+# table(ab_data_team$age_group)
+# table(ab_data_team$income)
+
+
+
 #read data
 product <- readxl::read_xlsx("data/AB_Data.xlsx", sheet = 1)
 customer <- readxl::read_xlsx("data/AB_Data.xlsx", sheet = 2)
@@ -36,6 +57,10 @@ sale <- readxl::read_xlsx("data/AB_Data.xlsx", sheet = 3)
 
 ab_data <- merge(sale, customer, all.x = TRUE, by = "cust_id")
 ab_data <- merge(ab_data, product, all.x = TRUE, by = "sku_id")
+ab_data$month <- month(ab_data$order_date, label=TRUE, abbr = F)
+
+# table(unique(ab_data$city) %in% c("Washington",
+#                        "Houston","New York City","El Paso","Dallas","Austin","San Antonio","Sacramento","Philadelphia","Miami"))
 
 
 #Processing data
