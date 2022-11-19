@@ -55,6 +55,7 @@ ui <- fullPage(
     menu = 'analytics',
     center = TRUE,
     uiOutput("ana_ui")
+    
 
   ),
   # fullSection(

@@ -30,91 +30,133 @@ library(httr)
 
 
 
-ab_data_team <- read.csv("data/AB_Data_20221117.csv", stringsAsFactors = F)
+# ab_data_team <- read.csv("data/AB_Data_20221117.csv", stringsAsFactors = F)
+# ab_data_team  <- ab_data_team[ab_data_team$city %in% c("Washington",
+#   "Houston","New York City","El Paso","Dallas","Austin","San Antonio","Sacramento","Philadelphia","Miami"),]
+# 
+# write.csv(ab_data_team, "data/ab_data_team.csv", row.names = F)
+
+ab_data_team <- read.csv("data/ab_data_team.csv", stringsAsFactors = F)
+
 ab_data_team$month_char <- month(ymd(as.Date(ab_data_team$order_date, format = "%m/%d/%Y")), label=TRUE, abbr = F)
-ab_data_team <- ab_data_team[ab_data_team$Weather_Type == "Outliers",]
+ab_data_team <- ab_data_team[ab_data_team$Weather_Type != "Outliers",]
 ab_data_team$age <- trunc(as.numeric(difftime(Sys.Date() ,as.Date(ab_data_team$dob, format = "%m/%d/%Y"),units = "days")) / 365.25)
+
 ab_data_team$age_group[ab_data_team$age <= 30 & ab_data_team$age >= 21] <- "22 - 30"
 ab_data_team$age_group[ab_data_team$age <= 40 & ab_data_team$age >= 31] <- "31 - 40"
 ab_data_team$age_group[ab_data_team$age <= 50 & ab_data_team$age >= 41] <- "41 - 50"
 ab_data_team$age_group[ab_data_team$age <= 60 & ab_data_team$age >= 51] <- "51 - 60"
 ab_data_team$age_group[ab_data_team$age >= 61] <- "Above 60"
 
-gender_dt <- data.frame(table(ab_data_team$gender))
-gender_dt$Var1 <- c("Female","Male")
 
-p <- plotly::plot_ly(gender_dt, 
-                     labels = ~Var1, 
-                     values = ~Freq, 
-                     type = 'pie',
-                     textposition = ifelse(100*(gender_dt$Freq/sum(gender_dt$Freq))<8,"outside","inside"),
-              
-                     #textposition = 'inside',
-                     sort = FALSE,
-                     textinfo = 'label+value+percent',
-                     #texttemplate = '<b>%{label}</br></br>%{percent}</b>', 
-                     insidetextfont = list(color = '#FFFFFF'),
-                     textfont = list(size = 20, color = "#4a1e15"),
-                     hoverinfo = 'text',
-                     text = ~Freq,
-                     marker = list(colors = c("#636466","#e3af32"),
-                                   line = list(color = '#FFFFFF', width = 1)),
-                     #The 'pull' attribute can also be used to create space between the sectors
-                     showlegend = FALSE)
+ab_data_team$income_text[ab_data_team$income == "A) 0-49999" ] <- "Below 50K"
+ab_data_team$income_text[ab_data_team$income == "B) 50000-99999"] <- "50K - 100K"
+ab_data_team$income_text[ab_data_team$income == "C) 100000-149999" ] <- "100K - 150K"
+ab_data_team$income_text[ab_data_team$income == "D) 150000-249999" ] <- "150K - 250K"
+ab_data_team$income_text[ab_data_team$income == "E) 250000-499999" ] <- "250K - 500K"
+ab_data_team$income_text[ab_data_team$income == "F) 500000-999999" ] <- "500K - 1M"
+ab_data_team$income_text[ab_data_team$income == "G) 1000000+"  ] <- "Above 1M"
 
 
+get_plot_dt <- function(dt,var = "gender"){
+  data <- data.frame(table(dt[[var]]))
+  names(data) <- c(var,"count")
+  data$per <- round(100*(data$count/sum(data$count)),2)
+  data <- data[order(data$count, decreasing = T),]
+  data[[var]] <- factor(data[[var]], levels = c(data[[var]]))
+  data$hovertext <- paste0("<b><i>",data[[var]] , "</i></b>", "<br>",
+                           "<b><i>",formatC(data$count, format="f", big.mark=",", digits=0), 
+                           " (", sprintf("%.0f", data$per), "%)", "<br>")
+  return(data)
+}
 
-bar_box_horizontal <- function(trimmer = 22, autorange = FALSE, plot_data,x_var,y_var,color_var,text,hovertext,title = "",x_var_label="",y_var_label="", colorRampPalette = TRUE,color_fill = c("#C2CFE7","#6787c4"), legend = "bottom", type_var="bar",alpha = 1,stack = TRUE,tickangle=0,mode_var="lines+markers", source = "summary_out") {
-  legend_in <- legend
-  if(legend_in  == "top"){
-    legend <- list(orientation = "h",xanchor = "center",y = 1.0,x = 0.5)
-    showlegend <- TRUE
-  }else if(legend_in  == "bottom"){
-    legend <- list(itemwidth = 29,orientation = "h",xanchor = "center",size = 12,y =-0.1,x = 0.5,
-                   title=list(size = 12,color = "#485E89"),
-                   font = list(size = 12,color = "#485E89"))
-    showlegend <- TRUE
-  }else if(legend_in  == "right"){
-    legend <- list(orientation = "v",yanchor = "center",y = 1,x = 0.8)
-    showlegend <- TRUE
-  }else if(legend_in  == "left"){
-    legend <- list(orientation = "v",yanchor = "center",y = 0.5,x = -0.15)
-    showlegend <- TRUE
-  }else{
-    showlegend <- FALSE
-  }
-  if(isTRUE(colorRampPalette)){
-    length_color <- length(unique(plot_data[[color_var]]))
-    color_fill_out <-  colorRampPalette(color_fill)(length_color)
-  }else{
-    color_fill_out <- color_fill
-  }
+
+# dt_gender <- get_plot_dt(ab_data, "gender")
+# dt_race <- get_plot_dt(ab_data, "race")
+# dt_income <- get_plot_dt(ab_data, "income_text")
+
+get_map_dt <- function(dt){
+  statepop$state <- statepop$abbr
+  statepop$location <- statepop$full
+  sale_map_dt <- merge(dt,statepop[,c("state","location")],all.y = TRUE, by.y = "state", by.x = "st")
   
-  if(isTRUE(stack)){
-    barmode = 'stack'
+  states <- read_rds("data/states.rds")
+  states$ID <- tools::toTitleCase(states$ID)
+  sale_map_dt <- sale_map_dt[!is.na(sale_map_dt$location), ]
+  sale_map_dt <- sale_map_dt[order(sale_map_dt$location,match(sale_map_dt$location,states$ID)),]
+  #https://rdrr.io/cran/leaflet/man/addLegend.html
+  sale_map_dt$labels <- sprintf("<strong style='color: red;font-size:14px;'>State: </strong><em style='font-size:14px;'>%s</em>
+                               <br/><strong style='color: red;font-size:14px;'>City: </strong><em style='font-size:14px;'>%s</em>
+                               <br/><strong style='color: red;font-size:14px;'>Customer ID: </strong><em style='font-size:14px;'>%g</em>
+                               <br/><strong style='color: #3EACA8;font-size:14px;'>Product: </strong><em style='font-size:14px;'>%s</em>
+                               <br/><strong style='color: #00d084;font-size:14px;'>Purchase: </strong><em style='font-size:14px;'>$%s</em>
+                               ",
+                                sale_map_dt$location,
+                                sale_map_dt$city,
+                                sale_map_dt$cust_id,
+                                sale_map_dt$prod_name,
+                                sale_map_dt$product_total_usd)%>% lapply(htmltools::HTML)
+  return(sale_map_dt)
+}
+
+
+pie_plot <- function(dt, label, value, hovertext, colors = c("#636466","#e3af32")){
+  
+  trimmer <- function(x,break_limit){ sapply(strwrap(stringr::str_to_title(x), break_limit, simplify=FALSE), paste, collapse="\n")}
+  dt[,label] <- trimmer(as.character(dt[,label]), 30)
+  
+  if(length(100*( dt[,value] /sum( dt[,value] ))<8) >= 3){
+    margin =list( l=10,r=10,b=80,t=10)
   }else{
-    barmode = 'group'
+    margin =list( l=30,r=30,b=30,t=30)
   }
-  
-  if(isFALSE(autorange)){
-    autorange = "reversed"
-  }else{
-    autorange  = TRUE
-  }
-  
-  if("total" %in% colnames(plot_data)){
-    range <- c(ifelse(min(plot_data[["total"]]) >= 0, 0, min(plot_data[["total"]])*2), max(plot_data[["total"]])+(max(plot_data[["total"]])/7))
-  }else{
-    range <- c(ifelse(min(plot_data[,y_var]) >= 0, min(plot_data[,y_var]) - min(plot_data[,y_var])/5 , min(plot_data[,y_var])*2), max(plot_data[,y_var])+(max(plot_data[,y_var])/7))
-  }
-  label <- unique(as.character(plot_data[[x_var]]))
-  tick.text <- trimmer(label, 22)
-  
-  
+  p <- plotly::plot_ly(dt, 
+                       labels = ~get(label), 
+                       values = ~get(value), 
+                       type = 'pie',
+                       textposition = ifelse(100*(dt[,value]/sum(dt[,value]))<8,"outside","inside"),
+                       #textposition = 'inside',
+                       sort = FALSE,
+                       textinfo = 'label+value+percent',
+                       #texttemplate = '<b>%{label}</br></br>%{percent}</b>', 
+                       insidetextfont = list(color = '#FFFFFF'),
+                       hoverinfo = 'text',
+                       text = ~get(value),
+                       marker = list(colors = colors,
+                                     line = list(color = '#FFFFFF', width = 1)),
+                       #The 'pull' attribute can also be used to create space between the sectors
+                       showlegend = FALSE)
+  plot <- p %>% plotly::layout(title = '',
+                   margin =margin ,
+                   showlegend = FALSE,separators = ',.',
+                   xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                   yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE)) 
+  return(plot)
+}
+
+#pie_plot(dt = dt_gender, label = "gender", value = "count", hovertext = "hovertext",colors = c("#636466","#e3af32"))
+
+
+#===========================================
+
+bar_plot <- function(plot_data,
+                     y_var = "count",
+                     x_var = "seg_name",
+                     color_var = "seg_name",
+                     text = "count",
+                     legend = "bottom",
+                     type_var="bar",
+                     color_fill_out = c("#e3af32","#636466"),
+                     source = "summary_out",
+                     y_var_label = "",
+                     x_var_label = "",
+                     title = "",
+                     hovertext = "hovertext"
+){
   p <- plotly::plot_ly(plot_data, 
-                       x = ~ get(y_var), 
+                       y = ~ get(y_var), 
                        color = ~ get(color_var),
-                       y = ~ get(x_var),
+                       x = ~ get(x_var),
                        customdata = ~ get(color_var),
                        text = ~ formatC(get(text), format="f", big.mark=",", digits=0),
                        hoverinfo = "text",
@@ -124,27 +166,19 @@ bar_box_horizontal <- function(trimmer = 22, autorange = FALSE, plot_data,x_var,
                        type = type_var,
                        alpha = 1,
                        colors = color_fill_out,
-                       orientation = 'h',
                        source = source)
-  plot <- p %>% layout(
-    barmode = "stack",
-    bargap = 0.2, bargroupgap = 0.1,
+  plot <- p %>% plotly::layout(
     font = list(color = 'gray',size = 10),
-    hoverlabel = list(font=list(size=11)),
-    showlegend =  showlegend,
+    hoverlabel = list(font=list(size=13)),
+    showlegend =  FALSE,
     title = list(text = title,font = list(size = 15,color = "#485E89")),
     margin =list( l=30,r=10,b=10,t=40),
     xaxis = list(
-      # autorange = "reversed",
-      range = range,
-      fixedrange = TRUE,
       tickfont = list(
-        
         size = 11,
         color = "#485E89"
       ),
       titlefont = list(
-        
         size =  13,
         color = "#485E89"
       ),
@@ -152,36 +186,28 @@ bar_box_horizontal <- function(trimmer = 22, autorange = FALSE, plot_data,x_var,
       zeroline = FALSE,
       tickmode = "array",
       color = "#485E89"
-      # tickvals=~ c(0, get(y_var)),
-      # ticktext=~ c(0, get(y_var))
     ),
     yaxis = list(
-      autorange =  autorange,
+      range = c(0, max(plot_data[,y_var]) + max(plot_data[,y_var])/10 ),
+      fixedrange = TRUE,
       tickfont = list(
-        
         size = 11,
         color = "#485E89"),
       titlefont = list(
-        
         size =  13,
         color = "#485E89"),
       title = y_var_label,
       zeroline = FALSE,
-      # tickmode = "array",
-      # tickvals = label,
-      # ticktext = tick.text,
-      # tickvals=~ c(0,get(x_var)),
-      # ticktext=~ c(0,get(x_var)),
       color = "#485E89"),
-    legend = legend)
+    legend =  list(itemwidth = 29,
+                   orientation = "h",
+                   xanchor = "center",
+                   size = 12,y =-0.05,x = 0.5,
+                   title=list(size = 12,color = "#485E89"),
+                   font = list(size = 12,color = "#485E89")))
   return(plot)
+  
 }
-
-
-
-
-
-
 
 
 
