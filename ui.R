@@ -58,21 +58,7 @@ ui <- fullPage(
     
 
   ),
-  # fullSection(
-  #   menu = 'location',
-  #   center = TRUE,
-  #   uiOutput("plot_region")
-  # ),
-  # fullSection(
-  #   menu = 'analytic',
-  #   center = TRUE,
-  #   id = "analytic",
-  #   fullSlideImage(
-  #     img = 'Cheers.jpeg',
-  #     #uiOutput("weather"),
-  #     uiOutput("weather_schedule")
-  #   )
-  # ),
+
   fullSection(
     menu = 'recommendation',
     center = TRUE,
