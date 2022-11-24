@@ -2,7 +2,9 @@ source("global.R")
 
 
 server <- function(input, output, session) {
+  
   source(file.path("server", "analytics_server.R"),  local = TRUE)$value
+  source(file.path("server", "visualization_server.R"),  local = TRUE)$value
   
   values <- reactiveValues(plot_region  = NULL)
   # map tab

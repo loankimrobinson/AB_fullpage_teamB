@@ -48,7 +48,8 @@ ui <- fullPage(
   ),
   fullSection(
     menu = 'visualization',
-    center = TRUE
+    center = TRUE,
+    uiOutput("visualization_ui")
 
   ),
   fullSection(
@@ -71,96 +72,19 @@ ui <- fullPage(
     center = TRUE,
     fullSlideImage(
       img = '',
-      div(style = "padding-left:30px;padding-top:30px;",
           div(
-            style = 'padding:0 17% 0 17%;',
+            style = 'padding:0 17% 0 17%; align:center;',
             br(),
-            h3(style = 'color:black;', 'Meet Our Team'),
-            hr()
+            h1("Meet Our Team", style = "color:gray;"),br(),br(),
+            hr(),
+            tags$img(src = "pictures_team.png", width = "1000px")
           ),
-      fluidRow(
-               column(width = 3,
-                      HTML('<div style="padding-left:10px;padding-top:10px;">
-                            <div class="card">
-                            <img src="loan.jpg" style="width:150px;height:250px;">
-                            <h4 style="font-weight: bold;" ><i>Loan Robinson</i></h4>
-                            <h4 style="font-weight: bold" ><i>Managing Director</i></h4>
-                            </div>
-                            </div>
-                             ')),
-               column(width = 3,
-                      HTML('<div style="padding-left:10px;padding-top:10px;">
-                            <div class="card">
-                            <img src="loan.jpg" style="width:150px;height:250px;">
-                             <h4 style="font-weight: bold" ><i>Loan Robinson</i></h4>
-                             <h4 style="font-weight: bold" ><i>Managing Director</i></h4>
-                             </div>
-                             </div>
-                             ')),
-               column(width = 3,
-                      HTML('<div style="padding-left:10px;padding-top:10px;">
-                            <div class="card">
-                            <img src="loan.jpg" style="width:150px;height:250px;">
-                             <h4 style="font-weight: bold" ><i>Loan Robinson</i></h4>
-                             <h4 style="font-weight: bold" ><i>Managing Director</i></h4>
-                             </div>
-                             </div>
-                             ')),
-               column(width = 3,
-                      HTML('<div style="padding-left:10px;padding-top:10px;">
-                            <div class="card">
-                            <img src="loan.jpg" style="width:150px;height:250px;">
-                             <h4 style="font-weight: bold" ><i>Loan Robinson</i></h4>
-                             <h4 style="font-weight: bold" ><i>Managing Director</i></h4>
-                             </div>
-                             </div>
-                             '))
-               ),
-      fluidRow(
-        column(width = 3,
-               HTML('<div style="padding-left:10px;padding-top:10px;">
-                            <div class="card">
-                            <img src="loan.jpg" style="width:150px;height:250px;">
-                            <h4 style="font-weight: bold;" ><i>Loan Robinson</i></h4>
-                            <h4 style="font-weight: bold" ><i>Managing Director</i></h4>
-                            </div>
-                            </div>
-                             ')),
-        column(width = 3,
-               HTML('<div style="padding-left:10px;padding-top:10px;">
-                            <div class="card">
-                            <img src="loan.jpg" style="width:150px;height:250px;">
-                             <h4 style="font-weight: bold" ><i>Loan Robinson</i></h4>
-                             <h4 style="font-weight: bold" ><i>Managing Director</i></h4>
-                             </div>
-                             </div>
-                             ')),
-        column(width = 3,
-               HTML('<div style="padding-left:10px;padding-top:10px;">
-                            <div class="card">
-                            <img src="loan.jpg" style="width:150px;height:250px;">
-                             <h4 style="font-weight: bold" ><i>Loan Robinson</i></h4>
-                             <h4 style="font-weight: bold" ><i>Managing Director</i></h4>
-                             </div>
-                             </div>
-                             ')),
-        column(width = 3,
-               HTML('<div style="padding-left:10px;padding-top:10px;">
-                            <div class="card">
-                            <img src="loan.jpg" style="width:150px;height:250px;">
-                             <h4 style="font-weight: bold" ><i>Loan Robinson</i></h4>
-                             <h4 style="font-weight: bold" ><i>Managing Director</i></h4>
-                             </div>
-                             </div>
-                             '))
-      ),
       div(
         style = 'padding:0 17% 0 17%;',
         br(),br(),
         h3(style = 'color:black;', ''),
         hr()
-       ),
+       )
       )
     )
-  )
 )
