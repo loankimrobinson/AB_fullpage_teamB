@@ -37,6 +37,17 @@ library(httr)
 # write.csv(ab_data_team, "data/ab_data_team.csv", row.names = F)
 
 ab_data_team <- read.csv("data/ab_data_team.csv", stringsAsFactors = F)
+dt_predict <- read.csv("data/all_predict_outputs.csv")
+
+
+
+# test <- dt_predict[dt_predict$Weather_Type=="Moderately Cold" & dt_predict$city == "New York City" ,]
+# test <- dt_predict[dt_predict$Weather_Type=="Moderately Hot" & dt_predict$city == "New York City" ,]
+# test <- dt_predict[dt_predict$Weather_Type== "Rainy"  & dt_predict$city == "New York City" ,]
+# 
+# fig <- plotly::plot_ly(test, x = ~order_date, y = ~AB_rev, type = 'scatter', mode = 'lines')
+# 
+# fig
 
 ab_data_team$month_char <- month(ymd(as.Date(ab_data_team$order_date, format = "%m/%d/%Y")), label=TRUE, abbr = F)
 ab_data_team <- ab_data_team[ab_data_team$Weather_Type != "Outliers",]
@@ -58,11 +69,16 @@ ab_data_team$income_text[ab_data_team$income == "F) 500000-999999" ] <- "500K - 
 ab_data_team$income_text[ab_data_team$income == "G) 1000000+"  ] <- "Above 1M"
 
 
-get_plot_dt <- function(dt,var = "gender"){
+get_plot_dt <- function(dt,var = "gender", decreasing = TRUE){
   data <- data.frame(table(dt[[var]]))
   names(data) <- c(var,"count")
   data$per <- round(100*(data$count/sum(data$count)),2)
-  data <- data[order(data$count, decreasing = T),]
+  if(isTRUE(decreasing)){
+    data <- data[order(data$count, decreasing = TRUE),] 
+  }else{
+    data <- data
+  }
+  
   data[[var]] <- factor(data[[var]], levels = c(data[[var]]))
   data$hovertext <- paste0("<b><i>",data[[var]] , "</i></b>", "<br>",
                            "<b><i>",formatC(data$count, format="f", big.mark=",", digits=0), 
