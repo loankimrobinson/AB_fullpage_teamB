@@ -24,11 +24,15 @@ output$visualization_ui <- renderUI({
   ),
   fluidRow(column(width = 12,h3("Definition", style = "text-align:center;"),
                   
-                  h5(HTML("Champion: Customers with Recency, Frequency, and Monetary value in the first quartile.<br><br>
-                  Loyal: Purchase recency, frequency, and monetary are in 1st or 2nd quartile<br><br>
-                  Potential loyal: Purchase recently but not very frequent and order value are relatively low.<br><br>
-Risk of losing: Purchase recency, frequency, and monetary value are in 3rd or 4th quartile.<br><br>
-Lost: Purchase recency, frequency, and monetary value are all in the 4th quartile.<br>"), style = "text-align:center;")
+                  h5(HTML("Champions: Best customers, bought most recently, most often and heavy spenders.<br><br>
+
+Loyal : These are recent customers with a higher than average frequency and monetary spends. Can offer targeted loyalty programs to make them champions.<br><br>
+
+Potential Loyalists: Customers who shopped very recently and with high frequency & potentially high brand recall. Increase their spending amount by upsell strategies. <br><br>
+
+At risk of losing: Customers who have not bought recently and might have spent big amounts in the past. Useful to analyze the past purchases and send personalized recommendations as a first step <br><br>
+
+Lost: Worst customers, and any marketing campaign might result in sunk costs <br>"), style = "text-align:center;")
                   ))
     ))
 })

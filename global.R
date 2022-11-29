@@ -100,7 +100,7 @@ get_plot_dt <- function(dt,var = "gender", decreasing = TRUE){
   
   data[[var]] <- factor(data[[var]], levels = c(data[[var]]))
   data$hovertext <- paste0("<b><i>",data[[var]] , "</i></b>", "<br>",
-                           "<b><i>",formatC(data$count, format="f", big.mark=",", digits=0), 
+                           "<b><i>",round(data$count,0), 
                            " (", sprintf("%.0f", data$per), "%)", "<br>")
   return(data)
 }
@@ -193,7 +193,7 @@ bar_plot <- function(plot_data,
                        color = ~ get(color_var),
                        x = ~ get(x_var),
                        customdata = ~ get(color_var),
-                       text = ~ formatC(get(text), format="f", big.mark=",", digits=0),
+                       text = ~ round(get(text), 0),
                        hoverinfo = "text",
                        hovertext = ~hovertext,
                        textposition = c('outside'),
@@ -205,7 +205,7 @@ bar_plot <- function(plot_data,
   plot <- p %>% plotly::layout(
     font = list(color = 'gray',size = 10),
     hoverlabel = list(font=list(size=13)),
-    showlegend =  FALSE,
+    showlegend =  TRUE,
     title = list(text = title,font = list(size = 15,color = "#485E89")),
     margin =list( l=30,r=10,b=10,t=40),
     xaxis = list(
@@ -235,9 +235,9 @@ bar_plot <- function(plot_data,
       zeroline = FALSE,
       color = "#485E89"),
     legend =  list(itemwidth = 29,
-                   orientation = "h",
+                   orientation = "v",
                    xanchor = "center",
-                   size = 12,y =-0.05,x = 0.5,
+                   size = 12,y =1,x = 1,
                    title=list(size = 12,color = "#485E89"),
                    font = list(size = 12,color = "#485E89")))
   return(plot)
