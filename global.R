@@ -39,6 +39,25 @@ library(httr)
 ab_data_team <- read.csv("data/ab_data_team.csv", stringsAsFactors = F)
 dt_predict <- read.csv("data/all_predict_outputs.csv")
 dt_predict$order_date <- as.Date(dt_predict$order_date ,format="%m/%d/%y") 
+profile_ab <- read.csv("data/profile_ab.csv", stringsAsFactors = F)
+
+
+# bar_plot(plot_data = profile_ab,
+#                      y_var = "value",
+#                      x_var = "rfm_group",
+#                      color_var = "name",
+#                      text = "value",
+#                      legend = "bottom",
+#                      type_var="bar",
+#                      color_fill_out = c("gray","#636466","#e3af32"),
+#                      source = "summary_out",
+#                      y_var_label = "",
+#                      x_var_label = "",
+#                      title = "",
+#                      hovertext = "hovertext"
+# )
+
+
 
 
 # test <- dt_predict[dt_predict$Weather_Type=="Moderately Cold" & dt_predict$city == "New York City" ,]

@@ -19,7 +19,7 @@ ui <- fullPage(
     'Home' = 'home',
     'RFM Static Visualization' = 'visualization',
     'Analytics' = 'analytics',
-    'Recommendations' = 'recommendation',
+    #'Recommendations' = 'recommendation',
     'About Us' = 'about'
   ),
   # home section----
@@ -60,13 +60,13 @@ ui <- fullPage(
 
   ),
 
-  fullSection(
-    menu = 'recommendation',
-    center = TRUE,
-    fullSlideImage(
-      img = 'AB-InBev-logo.jpeg'
-    )
-  ),
+  # fullSection(
+  #   menu = 'recommendation',
+  #   center = TRUE,
+  #   fullSlideImage(
+  #     img = 'AB-InBev-logo.jpeg'
+  #   )
+  # ),
   fullSection(
     menu = 'about',
     center = TRUE,
