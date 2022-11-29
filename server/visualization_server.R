@@ -15,7 +15,7 @@ output$visualization_ui <- renderUI({
         ),
         column(
           width = 6,h3("Customer Segment"),
-          selectInput("seg", label = "Segment", choice = c("Beer", "Weather","Gender","Age","State"), selected = "Beer"),
+          selectInput("seg", label = "Segment", choice = c("Segments","Gender","Brands", "Weather","State"), selected ="Segments"),
           uiOutput("image")
         )
       )
@@ -29,13 +29,13 @@ output$visualization_ui <- renderUI({
 
 output$image <- renderUI({
   req(input$seg)
-  if(input$seg == "Beer"){
+  if(input$seg == "Segments"){
     tags$img(src = "RFM_1.png",width = "650px")
-  }else if(input$seg == "Weather"){
-    tags$img(src = "RFM_2.png",width = "650px")
   }else if(input$seg == "Gender"){
+    tags$img(src = "RFM_2.png",width = "650px")
+  }else if(input$seg == "Brands"){
     tags$img(src = "RFM_3.png",width = "650px")
-  }else if(input$seg == "Age"){
+  }else if(input$seg == "Weather"){
     tags$img(src = "RFM_4.png",width = "650px")
   }else{
     tags$img(src = "RFM_5.png",width = "650px")

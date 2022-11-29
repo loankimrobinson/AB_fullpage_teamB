@@ -2,8 +2,7 @@ source("global.R")
 
 
 output$location <- renderUI({
-  selectInput("location", label = "Select Cities: ", choices = c("Washington",
-  "Houston","New York City","El Paso","Dallas","Austin","San Antonio","Sacramento","Philadelphia","Miami"), multiple = F, selected = "New York City")
+  selectInput("location", label = "Select Cities: ", choices = unique(dt_predict$city), multiple = F, selected = "New York City")
 })
 
 
@@ -24,10 +23,15 @@ output$rev_nonab <- renderUI({
 output$weather_type <- renderUI({
   req(input$location)
   choices_dt <- ab_data_team[ab_data_team$city %in% c(input$location), ]
+  choices <- unique(choices_dt$Weather_Type)
+
+  choices <- choices[choices %in% c("Moderately Cold", "Moderately Hot", "Rainy","Super Cold")]
+
+  
   selectInput("weather_type", label = "Select Weather Type: ", 
-              choices = unique(choices_dt$Weather_Type), 
+              choices = choices, 
               multiple = F, 
-              selected = unique(choices_dt$Weather_Type)[1])
+              selected = choices[3])
 })
 
 
@@ -48,13 +52,13 @@ output$ana_ui <- renderUI({
       column(
         width = 6,
         h5("AB InBev's Beer December Prediction"),
-        uiOutput("rev_ab"),br(),
+        uiOutput("rev_ab"),
         plotly::plotlyOutput("ab_pred_out", width = "100%", height = "300px")
       ),
       column(
         width = 6,
         h5("Competitor's Beer December Prediction"),
-        uiOutput("rev_nonab"),br(),
+        uiOutput("rev_nonab"),
         plotly::plotlyOutput("nonab_pred_out", width = "100%", height = "300px")
       )
       ),
@@ -196,15 +200,17 @@ observeEvent(input$rev_ab, {
     dt <- values$dt_pred
     dt <- dt[, c( "order_date","city","Weather_Type","AB_rev")]
     dt$pre_value <- dt$AB_rev
+    type = 'scatter'
   }else{
     dt <- values$dt_pred
     dt <- dt[, c( "order_date","city","Weather_Type","AB_qty")]
     dt$pre_value <- dt$AB_qty
+    type = "bar"
   }
+  
   values$dt_pred_ab <- dt
-
   output$ab_pred_out <- plotly::renderPlotly({
-    p <- plotly::plot_ly(values$dt_pred_ab, x = ~order_date, y = ~pre_value, type = 'scatter', mode = 'lines+markers')
+    p <- plotly::plot_ly(values$dt_pred_ab, x = ~order_date, y = ~pre_value, type =  type , mode = 'lines+markers')
     plot <- p %>% plotly::layout(title = '',
                                  showlegend = FALSE,
                                  separators = ',.',
@@ -220,14 +226,17 @@ observeEvent(input$rev_nonab, {
     dt <- values$dt_pred
     dt <- dt[, c( "order_date","city","Weather_Type","nonAB_rev")]
     dt$pre_value <- dt$nonAB_rev
+    type = 'scatter'
   }else{
     dt <- values$dt_pred
     dt <- dt[, c( "order_date","city","Weather_Type","nonAB_qty")]
     dt$pre_value <- dt$nonAB_qty
+    type = "bar"
   }
+
   values$dt_pred_nonab <- dt
   output$nonab_pred_out <- plotly::renderPlotly({
-    p <- plotly::plot_ly(values$dt_pred_nonab , x = ~order_date, y = ~pre_value, type = 'scatter', mode = 'lines+markers')
+    p <- plotly::plot_ly(values$dt_pred_nonab , x = ~order_date, y = ~pre_value, type = type, mode = 'lines+markers')
     plot <- p %>% plotly::layout(title = '',
                                  showlegend = FALSE,
                                  separators = ',.',

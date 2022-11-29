@@ -38,7 +38,7 @@ library(httr)
 
 ab_data_team <- read.csv("data/ab_data_team.csv", stringsAsFactors = F)
 dt_predict <- read.csv("data/all_predict_outputs.csv")
-
+dt_predict$order_date <- as.Date(dt_predict$order_date ,format="%m/%d/%y") 
 
 
 # test <- dt_predict[dt_predict$Weather_Type=="Moderately Cold" & dt_predict$city == "New York City" ,]
@@ -90,30 +90,30 @@ get_plot_dt <- function(dt,var = "gender", decreasing = TRUE){
 # dt_gender <- get_plot_dt(ab_data, "gender")
 # dt_race <- get_plot_dt(ab_data, "race")
 # dt_income <- get_plot_dt(ab_data, "income_text")
-
-get_map_dt <- function(dt){
-  statepop$state <- statepop$abbr
-  statepop$location <- statepop$full
-  sale_map_dt <- merge(dt,statepop[,c("state","location")],all.y = TRUE, by.y = "state", by.x = "st")
-  
-  states <- read_rds("data/states.rds")
-  states$ID <- tools::toTitleCase(states$ID)
-  sale_map_dt <- sale_map_dt[!is.na(sale_map_dt$location), ]
-  sale_map_dt <- sale_map_dt[order(sale_map_dt$location,match(sale_map_dt$location,states$ID)),]
-  #https://rdrr.io/cran/leaflet/man/addLegend.html
-  sale_map_dt$labels <- sprintf("<strong style='color: red;font-size:14px;'>State: </strong><em style='font-size:14px;'>%s</em>
-                               <br/><strong style='color: red;font-size:14px;'>City: </strong><em style='font-size:14px;'>%s</em>
-                               <br/><strong style='color: red;font-size:14px;'>Customer ID: </strong><em style='font-size:14px;'>%g</em>
-                               <br/><strong style='color: #3EACA8;font-size:14px;'>Product: </strong><em style='font-size:14px;'>%s</em>
-                               <br/><strong style='color: #00d084;font-size:14px;'>Purchase: </strong><em style='font-size:14px;'>$%s</em>
-                               ",
-                                sale_map_dt$location,
-                                sale_map_dt$city,
-                                sale_map_dt$cust_id,
-                                sale_map_dt$prod_name,
-                                sale_map_dt$product_total_usd)%>% lapply(htmltools::HTML)
-  return(sale_map_dt)
-}
+# 
+# get_map_dt <- function(dt){
+#   statepop$state <- statepop$abbr
+#   statepop$location <- statepop$full
+#   sale_map_dt <- merge(dt,statepop[,c("state","location")],all.y = TRUE, by.y = "state", by.x = "st")
+#   
+#   states <- read_rds("data/states.rds")
+#   states$ID <- tools::toTitleCase(states$ID)
+#   sale_map_dt <- sale_map_dt[!is.na(sale_map_dt$location), ]
+#   sale_map_dt <- sale_map_dt[order(sale_map_dt$location,match(sale_map_dt$location,states$ID)),]
+#   #https://rdrr.io/cran/leaflet/man/addLegend.html
+#   sale_map_dt$labels <- sprintf("<strong style='color: red;font-size:14px;'>State: </strong><em style='font-size:14px;'>%s</em>
+#                                <br/><strong style='color: red;font-size:14px;'>City: </strong><em style='font-size:14px;'>%s</em>
+#                                <br/><strong style='color: red;font-size:14px;'>Customer ID: </strong><em style='font-size:14px;'>%g</em>
+#                                <br/><strong style='color: #3EACA8;font-size:14px;'>Product: </strong><em style='font-size:14px;'>%s</em>
+#                                <br/><strong style='color: #00d084;font-size:14px;'>Purchase: </strong><em style='font-size:14px;'>$%s</em>
+#                                ",
+#                                 sale_map_dt$location,
+#                                 sale_map_dt$city,
+#                                 sale_map_dt$cust_id,
+#                                 sale_map_dt$prod_name,
+#                                 sale_map_dt$product_total_usd)%>% lapply(htmltools::HTML)
+#   return(sale_map_dt)
+# }
 
 
 pie_plot <- function(dt, label, value, hovertext, colors = c("#636466","#e3af32")){
@@ -235,95 +235,95 @@ bar_plot <- function(plot_data,
 
 
 #read data
-product <- readxl::read_xlsx("data/AB_Data.xlsx", sheet = 1)
-customer <- readxl::read_xlsx("data/AB_Data.xlsx", sheet = 2)
-sale <- readxl::read_xlsx("data/AB_Data.xlsx", sheet = 3)
-
-ab_data <- merge(sale, customer, all.x = TRUE, by = "cust_id")
-ab_data <- merge(ab_data, product, all.x = TRUE, by = "sku_id")
-ab_data$month <- month(ab_data$order_date, label=TRUE, abbr = F)
-
-# table(unique(ab_data$city) %in% c("Washington",
-#                        "Houston","New York City","El Paso","Dallas","Austin","San Antonio","Sacramento","Philadelphia","Miami"))
-
-
-#Processing data
-ab_data$age <- trunc(as.numeric(difftime(Sys.Date(), ab_data$dob, units = "days")) / 365.25)
-ab_data$product_total_usd <- ab_data$unit_price * ab_data$qty
-#[1] 45
-  
-#mapping
-statepop$state <- statepop$abbr
-statepop$location <- statepop$full
-sale_map_dt <- merge(ab_data ,statepop[,c("state","location")], all.x = TRUE, by.y = "state", by.x = "st")
-
-states <- read_rds("data/states.rds")
-states$ID <- tools::toTitleCase(states$ID)
-sale_map_dt <- sale_map_dt[!is.na(sale_map_dt$location), ]
-sale_map_dt <- sale_map_dt[order(sale_map_dt$location,match(sale_map_dt$location,states$ID)),]
-#https://rdrr.io/cran/leaflet/man/addLegend.html
-sale_map_dt$labels <- sprintf("<strong style='color: red;font-size:14px;'>State: </strong><em style='font-size:14px;'>%s</em>
-                               <br/><strong style='color: red;font-size:14px;'>City: </strong><em style='font-size:14px;'>%s</em>
-                               <br/><strong style='color: red;font-size:14px;'>Customer ID: </strong><em style='font-size:14px;'>%g</em>
-                               <br/><strong style='color: #3EACA8;font-size:14px;'>Product: </strong><em style='font-size:14px;'>%s</em>
-                               <br/><strong style='color: #00d084;font-size:14px;'>Purchase: </strong><em style='font-size:14px;'>$%s</em>
-                               ",
-                              sale_map_dt$location,
-                              sale_map_dt$city,
-                              sale_map_dt$cust_id,
-                              sale_map_dt$prod_name,
-                              sale_map_dt$product_total_usd)%>% lapply(htmltools::HTML)
+# product <- readxl::read_xlsx("data/AB_Data.xlsx", sheet = 1)
+# customer <- readxl::read_xlsx("data/AB_Data.xlsx", sheet = 2)
+# sale <- readxl::read_xlsx("data/AB_Data.xlsx", sheet = 3)
+# 
+# ab_data <- merge(sale, customer, all.x = TRUE, by = "cust_id")
+# ab_data <- merge(ab_data, product, all.x = TRUE, by = "sku_id")
+# ab_data$month <- month(ab_data$order_date, label=TRUE, abbr = F)
+# 
+# # table(unique(ab_data$city) %in% c("Washington",
+# #                        "Houston","New York City","El Paso","Dallas","Austin","San Antonio","Sacramento","Philadelphia","Miami"))
+# 
+# 
+# #Processing data
+# ab_data$age <- trunc(as.numeric(difftime(Sys.Date(), ab_data$dob, units = "days")) / 365.25)
+# ab_data$product_total_usd <- ab_data$unit_price * ab_data$qty
+# #[1] 45
+#   
+# #mapping
+# statepop$state <- statepop$abbr
+# statepop$location <- statepop$full
+# sale_map_dt <- merge(ab_data ,statepop[,c("state","location")], all.x = TRUE, by.y = "state", by.x = "st")
+# 
+# states <- read_rds("data/states.rds")
+# states$ID <- tools::toTitleCase(states$ID)
+# sale_map_dt <- sale_map_dt[!is.na(sale_map_dt$location), ]
+# sale_map_dt <- sale_map_dt[order(sale_map_dt$location,match(sale_map_dt$location,states$ID)),]
+# #https://rdrr.io/cran/leaflet/man/addLegend.html
+# sale_map_dt$labels <- sprintf("<strong style='color: red;font-size:14px;'>State: </strong><em style='font-size:14px;'>%s</em>
+#                                <br/><strong style='color: red;font-size:14px;'>City: </strong><em style='font-size:14px;'>%s</em>
+#                                <br/><strong style='color: red;font-size:14px;'>Customer ID: </strong><em style='font-size:14px;'>%g</em>
+#                                <br/><strong style='color: #3EACA8;font-size:14px;'>Product: </strong><em style='font-size:14px;'>%s</em>
+#                                <br/><strong style='color: #00d084;font-size:14px;'>Purchase: </strong><em style='font-size:14px;'>$%s</em>
+#                                ",
+#                               sale_map_dt$location,
+#                               sale_map_dt$city,
+#                               sale_map_dt$cust_id,
+#                               sale_map_dt$prod_name,
+#                               sale_map_dt$product_total_usd)%>% lapply(htmltools::HTML)
 
 # https://www.weather.gov/documentation/services-web-api
-get_weather_api <- function(lat, lng){
-  
-  url <- paste0("https://api.weather.gov/points/",lat,",",lng)
-  print(url)
-  url_forecast <- fromJSON(paste(readLines(url,warn=FALSE), collapse=""))
-  
-  forecast  <- url_forecast$properties$forecast
-  print(forecast )
-
-  dt_date  <- tryCatch(fromJSON(paste(readLines(forecast ,warn=FALSE), collapse="")), error = function(e) {return(NA)})
-  print(all(is.na(dt_date)))
-  
-  while(all(is.na(dt_date))) {
-    Sys.sleep(2) #Change as per requirement.
-    dt_date <- tryCatch(fromJSON(paste(readLines(forecast ,warn=FALSE), collapse="")), error = function(e) {return(NA)})
-  }
-
-  periods <- dt_date$properties$periods[,c("name","startTime","temperature","icon", "shortForecast")]
-  periods$temp_now <- periods$temperature[1]
-  periods$shortForecast_now  <- periods$shortForecast[1]
-  periods$date <- lubridate::ymd(as.Date(substr(periods$startTime, 1, 10)))
-  periods$name <- gsub("Veterans Day","Friday", periods$name)
-
-  
-  if(periods$name[1] == "This Afternoon"| periods$name[1] == "Today"){
-    periods$name[1] <- "Today"
-    min <- periods$temperature[c(1:14)%%2==0]
-    max <- periods$temperature[c(1:14)%%2!=0]
-    periods <- periods[-(grep("Night|Tonight", periods$name)),]
-    periods$min <- min
-    periods$max <- max
-  }else{
-    max <- periods[-(grep("Night|Tonight|Overnight", periods$name)),]$temperature
-    min <- periods[(grep("Night|Tonight|Overnight", periods$name)),]$temperature
-    periods$name[1] <- "Today"
-    periods <- periods[-(grep("Night|Tonight", periods$name)),]
-    periods <- periods[-nrow(periods),]
-    periods$min <- min
-    periods$max <- max
-  }
-  
-  periods$month <- month(periods$date, label=TRUE, abbr = F)
-  periods$day <-  ifelse(day(periods$date)==1, "1<sup>st</sup>",
-                         ifelse(day(periods$date)==2, "2<sup>nd</sup>",
-                                ifelse(day(periods$date)==3, "3<sup>rd</sup>",paste0(day(periods$date), "<sup>th</sup>"))))
-  periods$full_date <- paste0(periods$name,", ",periods$month, " ",periods$day)
-
-  return(periods)
-}
+# get_weather_api <- function(lat, lng){
+#   
+#   url <- paste0("https://api.weather.gov/points/",lat,",",lng)
+#   print(url)
+#   url_forecast <- fromJSON(paste(readLines(url,warn=FALSE), collapse=""))
+#   
+#   forecast  <- url_forecast$properties$forecast
+#   print(forecast )
+# 
+#   dt_date  <- tryCatch(fromJSON(paste(readLines(forecast ,warn=FALSE), collapse="")), error = function(e) {return(NA)})
+#   print(all(is.na(dt_date)))
+#   
+#   while(all(is.na(dt_date))) {
+#     Sys.sleep(2) #Change as per requirement.
+#     dt_date <- tryCatch(fromJSON(paste(readLines(forecast ,warn=FALSE), collapse="")), error = function(e) {return(NA)})
+#   }
+# 
+#   periods <- dt_date$properties$periods[,c("name","startTime","temperature","icon", "shortForecast")]
+#   periods$temp_now <- periods$temperature[1]
+#   periods$shortForecast_now  <- periods$shortForecast[1]
+#   periods$date <- lubridate::ymd(as.Date(substr(periods$startTime, 1, 10)))
+#   periods$name <- gsub("Veterans Day","Friday", periods$name)
+# 
+#   
+#   if(periods$name[1] == "This Afternoon"| periods$name[1] == "Today"){
+#     periods$name[1] <- "Today"
+#     min <- periods$temperature[c(1:14)%%2==0]
+#     max <- periods$temperature[c(1:14)%%2!=0]
+#     periods <- periods[-(grep("Night|Tonight", periods$name)),]
+#     periods$min <- min
+#     periods$max <- max
+#   }else{
+#     max <- periods[-(grep("Night|Tonight|Overnight", periods$name)),]$temperature
+#     min <- periods[(grep("Night|Tonight|Overnight", periods$name)),]$temperature
+#     periods$name[1] <- "Today"
+#     periods <- periods[-(grep("Night|Tonight", periods$name)),]
+#     periods <- periods[-nrow(periods),]
+#     periods$min <- min
+#     periods$max <- max
+#   }
+#   
+#   periods$month <- month(periods$date, label=TRUE, abbr = F)
+#   periods$day <-  ifelse(day(periods$date)==1, "1<sup>st</sup>",
+#                          ifelse(day(periods$date)==2, "2<sup>nd</sup>",
+#                                 ifelse(day(periods$date)==3, "3<sup>rd</sup>",paste0(day(periods$date), "<sup>th</sup>"))))
+#   periods$full_date <- paste0(periods$name,", ",periods$month, " ",periods$day)
+# 
+#   return(periods)
+# }
 
 # url <- paste0("https://api.weather.gov/points/",40.8247,",",-96.6252)
 # url_forecast <- fromJSON(paste(readLines(url,warn=FALSE), collapse=""))
@@ -373,24 +373,8 @@ get_temp_plot <- function(dt_temp){
 
 }
 
-# url <- paste0("https://api.weather.gov/points/",sale_map_dt$lat[1],",",sale_map_dt$lng[1])
-# url_forecast <- fromJSON(paste(readLines(url,warn=FALSE), collapse=""))
-# forecast  <- url_forecast$properties$forecast
-# dt_date <- fromJSON(paste(readLines(forecast ,warn=FALSE), collapse=""))
 
-
-#dt_temp <- get_weather_api(sale_map_dt$lat[1], sale_map_dt$lng[1])
-
-
-# display.brewer.pal(8,"RdYlBu")
-# brewer.pal(8,"RdYlBu")
-#get_temp_plot(dt_temp)
-
-
-# brewer.pal(8,"RdYlBu")
-# display.brewer.all()
-
-color_set <- c(brewer.pal(8,"YlOrRd"), brewer.pal(10,"RdYlBu") ,brewer.pal(8,"Accent"),brewer.pal(9,"Set1"))
+#color_set <- c(brewer.pal(8,"YlOrRd"), brewer.pal(10,"RdYlBu") ,brewer.pal(8,"Accent"),brewer.pal(9,"Set1"))
 
 
 
